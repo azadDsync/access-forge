@@ -186,6 +186,9 @@ const Message = React.forwardRef<HTMLDivElement, MessageProps>(
           className={cn(messageVariants({ variant }), className)}
           data-message-role={role}
           data-message-id={message.id}
+          role={role === "assistant" ? "status" : undefined}
+          aria-live={role === "assistant" ? "polite" : undefined}
+          aria-atomic="true"
           {...props}
         >
           {children}
@@ -340,6 +343,7 @@ const MessageContent = React.forwardRef<HTMLDivElement, MessageContentProps>(
           className,
         )}
         data-slot="message-content"
+        aria-label={message.role === "assistant" ? "AI assistant response" : "Your message"}
         {...props}
       >
         {showLoading && !message.reasoning ? (

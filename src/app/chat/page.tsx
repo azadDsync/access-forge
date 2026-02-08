@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import AdaptiveChatLayout from "@/components/accessibility/AdaptiveChatLayout";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { MessageThreadFull } from "@/components/tambo/message-thread-full";
@@ -25,6 +26,35 @@ export default function Home() {
   // Load MCP server configurations
   const mcpServers = useMcpServers();
   const { data: session } = useSession();
+  const messageInputRef = useRef<HTMLDivElement>(null);
+
+  // Global keyboard shortcut: Alt+M to focus message input
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey && event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        // Find and focus the message input
+        const input = document.querySelector<HTMLTextAreaElement | HTMLInputElement>(
+          'textarea[placeholder*="message"], input[placeholder*="message"], [data-tambo-input]'
+        );
+        if (input) {
+          input.focus();
+          // Announce to screen readers
+          const announcement = document.createElement("div");
+          announcement.setAttribute("role", "status");
+          announcement.setAttribute("aria-live", "polite");
+          announcement.textContent = "Message input focused";
+          announcement.className = "sr-only";
+          document.body.appendChild(announcement);
+          setTimeout(() => document.body.removeChild(announcement), 1000);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const contextHelpers = {
     githubRepoCreation: () => ({
       instructions:
@@ -76,7 +106,7 @@ export default function Home() {
             >
               <AdaptiveChatLayout>
                 <div className="h-[93vh]">
-                  <MessageThreadFull className="max-w-4xl mx-auto" />
+                  <MessageThreadFull className="max-w-4xl mx-auto" autoFocus />
                 </div>
               </AdaptiveChatLayout>
             </main>

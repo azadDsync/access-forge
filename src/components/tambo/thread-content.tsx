@@ -96,6 +96,15 @@ const ThreadContent = React.forwardRef<HTMLDivElement, ThreadContentProps>(
           data-slot="thread-content-container"
           {...props}
         >
+          {/* Screen reader loading announcement */}
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="sr-only"
+          >
+            {isGenerating && "AI is thinking..."}
+          </div>
           {children}
         </div>
       </ThreadContentContext.Provider>
@@ -139,6 +148,10 @@ const ThreadContentMessages = React.forwardRef<
       {...props}
     >
       {filteredMessages.map((message, index) => {
+        const totalMessages = filteredMessages.length;
+        const messageNumber = index + 1;
+        const positionLabel = `Message ${messageNumber} of ${totalMessages}`;
+        
         return (
           <div
             key={
@@ -146,6 +159,7 @@ const ThreadContentMessages = React.forwardRef<
               `${message.role}-${message.createdAt ?? `${index}`}-${message.content?.toString().substring(0, 10)}`
             }
             data-slot="thread-content-item"
+            aria-label={positionLabel}
           >
             <Message
               role={message.role === "assistant" ? "assistant" : "user"}

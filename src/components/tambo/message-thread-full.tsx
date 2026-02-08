@@ -69,6 +69,11 @@ export interface MessageThreadFullProps extends React.HTMLAttributes<HTMLDivElem
    * Override the message input placeholder text.
    */
   inputPlaceholder?: string;
+  /**
+   * Whether to auto-focus the message input on mount (for blind users).
+   * @default false
+   */
+  autoFocus?: boolean;
 }
 
 /**
@@ -77,10 +82,24 @@ export interface MessageThreadFullProps extends React.HTMLAttributes<HTMLDivElem
 export const MessageThreadFull = React.forwardRef<
   HTMLDivElement,
   MessageThreadFullProps
->(({ className, variant, initialSuggestions, showHistory = true, showGitHubBanners = true, inputPlaceholder, ...props }, ref) => {
+>(({ className, variant, initialSuggestions, showHistory = true, showGitHubBanners = true, inputPlaceholder, autoFocus = false, ...props }, ref) => {
   const { containerRef, historyPosition } = useThreadContainerContext();
   const mergedRef = useMergeRefs<HTMLDivElement | null>(ref, containerRef);
 
+  // Auto-focus input on mount if requested (for blind users)
+  React.useEffect(() => {
+    if (autoFocus) {
+      const timer = setTimeout(() => {
+        const input = document.getElementById("chat-input");
+        if (input) {
+          (input as HTMLElement).focus();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus]);
+
+  // Keyboard shortcut: Alt+M to focus input
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!event.altKey || event.key.toLowerCase() !== "m") return;
