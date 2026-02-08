@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "init": "npx tambo init"
+    "init": "npx tambo init",
+    "postinstall": "prisma generate --schema prisma/schema.prisma"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.24.0",
